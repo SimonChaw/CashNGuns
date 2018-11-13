@@ -1,0 +1,27 @@
+.button {
+  position: relative;
+  left: 0;
+  top: 0;
+  text-align: center;
+  transition: .125s;
+  width: 20vw;
+  height: 10vh;
+  border-radius: 4.8px;
+  background-color: #221F20;
+  box-shadow: -5px 5px #9B9D9F;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5vh;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.button:active {
+  left: -5px;
+  top: 5px;
+  box-shadow: 0 0 #9B9D9F;
+}

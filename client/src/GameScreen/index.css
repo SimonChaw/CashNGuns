@@ -1,0 +1,12 @@
+.icon-card{
+  display: flex;
+  width: 30vw;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-card:hover{
+  background-color: #9B9D9F;
+  cursor: pointer;
+}

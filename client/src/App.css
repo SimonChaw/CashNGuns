@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css?family=Anton');
+
+html, body{
+  font-family: 'Anton', sans-serif;
+}
+
+.App {
+  text-align: center;
+  background-color: #CF181F;
+  height: 100vh;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+}
+
+
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bar {
+  width: 100%;
+  height: 20px;
+  border: 1px solid #2980b9;
+  border-radius: 3px;
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      #2980b9,
+      #2980b9 11px,
+      #eee 10px,
+      #eee 20px /* determines size */
+    );
+  background-size: 28px 28px;
+  animation: move .5s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 28px 0;
+  }
+}
