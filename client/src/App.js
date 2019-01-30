@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
-import openSocket from 'socket.io-client';
 import Header from './Header';
 import LoadingScreen from './Loading';
 import Lobby from './Lobby';
@@ -24,7 +23,7 @@ class App extends Component {
 
   onLoaded(assetManifest){
     console.log('Loaded!');
-    this.setState({currentScreen : 'lobby', assetManifest : assetManifest})
+    this.setState({currentScreen : 'lobby', assetManifest : assetManifest, loaded:true})
     //assetManifest.audio[0].play();
   }
 

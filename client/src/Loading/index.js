@@ -5,6 +5,7 @@ const image_urls = [
   '/assets/img/cash_10000.png',
   '/assets/img/cash_20000.png',
   '/assets/img/diamond_1000.png',
+  '/assets/img/sprite_test.png'
 ]
 
 const audio_urls = [

@@ -568,6 +568,19 @@ class Game {
       return remaining
     }
 
+    /*
+      Prepare Game Manifest
+
+      Params:
+      reqPlayer - (Object) Player who this package will be sent to
+
+      Deliver relevant game variables but scrub out the data that the client
+      shouldn't see like cash value and bullet/bang cards
+    */
+    prepare_game_manifest(reqPlayer){
+       
+    }
+
 }
 
 // Card class
@@ -611,8 +624,9 @@ function shuffle(a) {
     }
     return a;
 }
-/*
-module.exports = {
-  Game: Game
+
+function make_copy(obj){
+    return Object.assign({}, obj);
 }
-*/
+
+module.exports = Game

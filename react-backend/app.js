@@ -3,15 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var game = require('./game');
-var player = require('./player');
-
-
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 
+const Player = require('./player');
+const AI_Player = require('./ai_player');
+const Game = require('./game.js')
+/*
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -22,9 +24,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+*/
+/*
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -40,33 +44,59 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+*/
+server.listen(4200);
+let messages = []
+let game = new Game();
+io.on('connection', function(client) {
 
-var newGame = new game.Game();
-var player1 = new player.Player();
-var player2 = new player.Player();
-let currentPlayer;
-newGame.join(player1);
-newGame.join(player2);
-newGame.setup();
-newGame.start();
+    console.log('Client connected...');
 
-var readline = require('readline');
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-});
+    client.on('create game', function(){
+        console.log('This players room is:');
+        console.log(client.rooms);
+    });
 
-rl.on("line", function(d) {
-  if (d === 'P1') {
-    currentPlayer = player1
-    console.log('Inputing for Player 1')
-  } else if (d === 'P2'){
-    currentPlayer = player2
-    console.log('Inputing for Player 2')
-  } else {
-    newGame.currentFunction(currentPlayer, d)
-  }
+    client.emit('messages', messages)
+
+    client.on('join game', function(data) {
+        let player = new Player(data.name)
+        game.join(player)
+    });
+
+    client.on('add ai player', function(){
+        if (game.players.length < 8) {
+
+          let player = new AI_Player();
+          client.emit('game message', {name: 'Game Message' , message: 'AI Player added.'})
+        } else {
+          client.emit('game message', {name: 'Game Message' , message: 'There cannot be more than 8 players.'})
+        }
+    });
+
+    client.on('remove ai player', function(){
+        let playerRemoved = false;
+        game.players.forEach((player, index) => {
+          if (! player.human) {
+            game.players.splice(index, 1)
+            client.emit('game message', {name: 'Game Message' , message: 'AI Player removed.'})
+            playerRemoved = true;
+            return;
+          }
+        })
+        if (! playerRemoved) {
+          client.emit('game message', {name: 'Game Message' , message: 'No AI Players to remove.'})
+        }
+    })
+
+    client.on('game start', function(data){
+        game.start()
+    });
+
+    client.on('message', function(data){
+        messages.push(data)
+        io.emit('new message', data)
+    });
 });
 
 module.exports = app;

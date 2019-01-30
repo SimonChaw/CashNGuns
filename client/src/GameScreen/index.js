@@ -1,22 +1,44 @@
 import React, { Component } from 'react';
 import Game from '../Game';
 import './index.css';
+import GameContainer from '../Containers/Game';
+import Chat from '../Chat';
+import openSocket from 'socket.io-client';
+
+var me;
 
 class GameScreen extends Component {
   constructor(props){
     super(props)
+    // Set up socket events
+    let socket = openSocket('http://localhost:4200');
+    let game = new GameContainer(socket, this.dispatchMessage)
 
     this.state = {
       gameWidth : 0,
-      gameHeight : 0
+      gameHeight : 0,
+      socket : socket,
+      game : game,
+      messages : []
     }
 
+    me = this;
     this.getStageDimension = this.getStageDimension.bind(this)
+  }
+
+  dispatchMessage(message) {
+    // SCOPE ISSUE. USE ME
+    let messages = me.state.messages
+    messages.push(message)
+    me.setState({
+      'messages' : messages
+    })
   }
 
   componentDidMount() {
     this.getStageDimension()
     window.func = this.getStageDimension;
+
     window.addEventListener('resize', function(event){
       this.func()
     });
@@ -36,12 +58,12 @@ class GameScreen extends Component {
 
   render(){
     return(
-      <div style={{height:'95vh', display:'flex', flexDirection:'row'}}>
+      <div style={{height:'95vh', display:'flex', flexDirection:'row', maxWidth:'100vw', overflowX:'hidden'}}>
         <div style={{display:'flex', flexDirection:'column', width:'70vw'}}>
-          <div id="gameWindow" style={{border:'2px solid black', height:'75vh'}}>
-            <Game requestRefresh={this.getStageDimension} height={this.state.gameHeight} width={this.state.gameWidth} assetManifest={this.props.assetManifest}/>
+          <div id="gameWindow" style={{height:'75vh'}}>
+            <Game gameContainer={this.state.game} height={this.state.gameHeight} width={this.state.gameWidth} assetManifest={this.props.assetManifest}/>
           </div>
-          <div style={{border:'2px solid black', height:'25vh', backgroundColor:'#221F20', color:'white'}}>
+          <div style={{height:'25vh', backgroundColor:'#221F20', color:'white'}}>
             <div style={{display:'flex', flexDirection:'row', height:'25vh', width:'70vw'}}>
               <div className="icon-card">
                 <img style={{width:'10vw'}} src="./Money_Bag_icon.png"/>
@@ -57,8 +79,8 @@ class GameScreen extends Component {
           </div>
         </div>
         <div style={{display:'flex', flexDirection:'column', width:'30vw'}}>
-          <div style={{border:'2px solid black', width:'30vw', height:'95vh'}}>
-            <h1>Chat</h1>
+          <div style={{height:'95vh'}}>
+            <Chat socket={this.state.socket} messages={this.state.messages} />
           </div>
         </div>
       </div>
@@ -66,5 +88,6 @@ class GameScreen extends Component {
   }
 
 }
+
 
 export default GameScreen;

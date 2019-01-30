@@ -8,7 +8,8 @@ class AI_Player extends Player {
      this.difficulty = 3
      // Set flag so the game knows it's an AI player
      this.human = false
-     this.name = name
+     // Get random name
+     this.name = this.getRandomName();
    }
 
    /*
@@ -287,6 +288,113 @@ class AI_Player extends Player {
      let values = [0, 4000, 12000, 30000, 60000, 100000, 150000, 200000, 300000, 400000, 500000]
      let value = values[numPaintings]
      return value
+   }
+
+   getRandomName(){
+     var data = [
+     	{"name": "Duncan"},
+     	{"name": "Brian"},
+     	{"name": "Ross"},
+     	{"name": "Malachi"},
+     	{"name": "Tyler"},
+     	{"name": "Eagan"},
+     	{"name": "Kaseem"},
+     	{"name": "Quinn"},
+     	{"name": "Alfonso"},
+     	{"name": "Edward"},
+     	{"name": "Demetrius"},
+     	{"name": "Brian"},
+     	{"name": "Stuart"},
+     	{"name": "Dexter"},
+     	{"name": "Brian"},
+     	{"name": "Ferris"},
+     	{"name": "Dane"},
+     	{"name": "Sebastian"},
+     	{"name": "Clinton"},
+     	{"name": "Addison"},
+     	{"name": "Keith"},
+     	{"name": "Armand"},
+     	{"name": "Caleb"},
+     	{"name": "Hiram"},
+     	{"name": "Lionel"},
+     	{"name": "Conan"},
+     	{"name": "Guy"},
+     	{"name": "Xanthus"},
+     	{"name": "Lucius"},
+     	{"name": "Noah"},
+     	{"name": "Armand"},
+     	{"name": "David"},
+     	{"name": "Jonah"},
+     	{"name": "Dominic"},
+     	{"name": "Sawyer"},
+     	{"name": "Steven"},
+     	{"name": "Carson"},
+     	{"name": "Geoffrey"},
+     	{"name": "Lev"},
+     	{"name": "Moses"},
+     	{"name": "Justin"},
+     	{"name": "Magee"},
+     	{"name": "Conan"},
+     	{"name": "Jacob"},
+     	{"name": "Sebastian"},
+     	{"name": "Jamal"},
+     	{"name": "Kenyon"},
+     	{"name": "Ivor"},
+     	{"name": "Samson"},
+     	{"name": "Omar"},
+     	{"name": "Gray"},
+     	{"name": "Silas"},
+     	{"name": "Abdul"},
+     	{"name": "Erich"},
+     	{"name": "Oren"},
+     	{"name": "Lev"},
+     	{"name": "Alvin"},
+     	{"name": "Hayden"},
+     	{"name": "Tad"},
+     	{"name": "Stuart"},
+     	{"name": "Wesley"},
+     	{"name": "Abel"},
+     	{"name": "Jermaine"},
+     	{"name": "Wyatt"},
+     	{"name": "Leonard"},
+     	{"name": "Peter"},
+     	{"name": "Andrew"},
+     	{"name": "Kane"},
+     	{"name": "Bevis"},
+     	{"name": "Louis"},
+     	{"name": "Upton"},
+     	{"name": "Bruce"},
+     	{"name": "Hammett"},
+     	{"name": "Zeph"},
+     	{"name": "Keane"},
+     	{"name": "Ignatius"},
+     	{"name": "Griffin"},
+     	{"name": "Emmanuel"},
+     	{"name": "Baxter"},
+     	{"name": "Kasper"},
+     	{"name": "Kareem"},
+     	{"name": "Chaim"},
+     	{"name": "Macon"},
+     	{"name": "Kibo"},
+     	{"name": "Emerson"},
+     	{"name": "Todd"},
+     	{"name": "Hector"},
+     	{"name": "Kuame"},
+     	{"name": "Stephen"},
+     	{"name": "Vincent"},
+     	{"name": "Lester"},
+     	{"name": "Price"},
+     	{"name": "Kirk"},
+     	{"name": "Chaim"},
+     	{"name": "Tyler"},
+     	{"name": "Patrick"},
+     	{"name": "Keith"},
+     	{"name": "Nigel"},
+     	{"name": "Travis"},
+     	{"name": "Barrett"}
+     ];
+     let rand = Math.round(Math.random() * data.length)
+     return data[rand].name
    }
 
 }
