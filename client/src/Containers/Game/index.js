@@ -1,10 +1,11 @@
-let handler;
-
+let me;
 class GameContainer {
 
-   constructor(socket, messageHandler){
+   constructor(socket, messageHandler, refresh){
+     me = this;
      this.socket = socket
-     handler = messageHandler
+     this.handler = messageHandler
+     this.refresh = refresh;
      this.rounds = 0
      this.currentLoot = []
      this.players = []
@@ -14,7 +15,9 @@ class GameContainer {
      //Set up socket eventHandlers
      // Loot Function
      //this.socket.on('loot', this.loot);
-     this.socket.on('game message', this.handleFeedback);
+     this.socket.on('game message', me.handleFeedback);
+     this.socket.on('player manifest', this.acceptPlayerManifest);
+     this.socket.on('setup round', this.setupRound);
      //this.socket.on('')
      this.socket.emit('create game');
      this.socket.emit('join game', { name : 'Simon' });
@@ -30,17 +33,21 @@ class GameContainer {
    }
 
    handleFeedback(message){
-     handler(message)
+     me.handler(message)
    }
 
-   addAIPlayer(){
-     this.socket.emit('add ai player');
+   sendAction(action){
+     this.socket.emit(action);
    }
 
-   removeAIPlayer(){
-     this.socket.emit('remove ai player');
+   acceptPlayerManifest(data){
+     me.players = data;
+     me.refresh();
    }
 
+   setupRound(game){
+     console.log(game);
+   }
 
 
 }

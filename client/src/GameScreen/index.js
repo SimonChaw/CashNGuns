@@ -4,15 +4,14 @@ import './index.css';
 import GameContainer from '../Containers/Game';
 import Chat from '../Chat';
 import openSocket from 'socket.io-client';
-
-var me;
+let me;
 
 class GameScreen extends Component {
   constructor(props){
     super(props)
     // Set up socket events
     let socket = openSocket('http://localhost:4200');
-    let game = new GameContainer(socket, this.dispatchMessage)
+    let game = new GameContainer(socket, this.dispatchMessage, this.refreshScreen)
 
     this.state = {
       gameWidth : 0,
@@ -21,7 +20,6 @@ class GameScreen extends Component {
       game : game,
       messages : []
     }
-
     me = this;
     this.getStageDimension = this.getStageDimension.bind(this)
   }
@@ -33,6 +31,10 @@ class GameScreen extends Component {
     me.setState({
       'messages' : messages
     })
+  }
+
+  refreshScreen() {
+    me.getStageDimension();
   }
 
   componentDidMount() {
@@ -60,7 +62,7 @@ class GameScreen extends Component {
     return(
       <div style={{height:'95vh', display:'flex', flexDirection:'row', maxWidth:'100vw', overflowX:'hidden'}}>
         <div style={{display:'flex', flexDirection:'column', width:'70vw'}}>
-          <div id="gameWindow" style={{height:'75vh'}}>
+          <div id="gameWindow" style={{height:'70vh'}}>
             <Game gameContainer={this.state.game} height={this.state.gameHeight} width={this.state.gameWidth} assetManifest={this.props.assetManifest}/>
           </div>
           <div style={{height:'25vh', backgroundColor:'#221F20', color:'white'}}>

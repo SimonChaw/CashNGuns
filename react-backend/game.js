@@ -471,7 +471,7 @@ class Game {
     check_if_finished () {
       let finished = true
       this.players.forEach((player) => {
-        if (! player.actionTaken) {
+        if (! player.actionTaken && player.human) {
           finished = false
         }
       })
@@ -577,8 +577,20 @@ class Game {
       Deliver relevant game variables but scrub out the data that the client
       shouldn't see like cash value and bullet/bang cards
     */
-    prepare_game_manifest(reqPlayer){
-       
+    prepare_game_manifest(){
+      // This is a no no, but it will do for testing.
+      // TODO: prepare a safe manifest personalized for each player.
+      return this;
+    }
+
+    /*
+      Prepare Player Manifest
+
+      Deliver relevant player variables but scrub out the data that the client
+      shouldn't see like cash value and bullet/bang cards
+    */
+    get_player_manifest(){
+      return this.players;
     }
 
 }

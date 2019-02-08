@@ -2,44 +2,48 @@ import React, { Component } from 'react';
 import Konva from 'konva';
 import { Image, Text, Group } from 'react-konva';
 
-let animator;
-let index = 0;
 class Player extends Component {
 
   constructor(props){
     super(props)
 
     this.state = {
-      taken : false,
-      currentAnimation : 'default',
       name : '',
       wounds : 0,
       currentCash : 0,
-      sprite : undefined
+      sprite : undefined,
+      index : 0
     }
-
+    this.switchAnim = this.switchAnim.bind(this);
   }
 
   componentDidMount(){
-    this.props.spritesheet.onload = () => {
-      this.state.sprite.crop({
-        x: 0,
-        y: 0,
-        width: 630,
-        height: 700
-      });
-      this.state.sprite.blue(200);
-      this.state.sprite.getLayer().batchDraw()
-      animator = new Animator(this.state.sprite)
-      animator.play();
-    }
+    this.state.sprite.crop({
+      x: 0,
+      y: 0,
+      width: 630,
+      height: 700
+    });
+    let animator = new Animator(this.state.sprite)
+    animator.play();
+    this.setState({
+      'animator' : animator
+    })
+    this.state.sprite.getLayer().batchDraw()
+  }
 
-
+  componentWillUnmount(){
+    this.state.animator.stop();
+    delete this.state.animator;
   }
 
   switchAnim(){
-    index = index === animator.animNames.length - 1 ? 0 : index + 1;
-    animator.switchAnim(index);
+    let index = this.state.index;
+    index = index === this.state.animator.animNames.length - 1 ? 0 : index + 1;
+    this.state.animator.switchAnim(index);
+    this.setState({
+      'index' : index
+    })
   }
 
   render(){
@@ -48,25 +52,24 @@ class Player extends Component {
         <Image
           image={this.props.spritesheet}
           ref={node => { this.state.sprite = node }}
-          x={0}
-          y={0}
-          x={this.props.position.x}
-          y={this.props.position.y}
-          scaleX={0.035}
-          scaleY={0.5}
+          x={this.props.index % 2 == 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3)}
+          y={ -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
+          scaleX={this.props.flip ? -0.035 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2)) : 0.035 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2))}
+          scaleY={0.5 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2))}
           draggable
           shadowColor="black"
           shadowBlur={10}
           shadowOpacity={0.6}
-          blue={200}
           onClick={this.switchAnim}
         />
         <Text
           fill={'white'}
-          text={'YOU'}
+          text={this.props.name}
+          stroke={'black'}
+          strokeWidth={1.5}
           ref={node => { this.textNode = node }}
-          x={420}
-          y={250}
+          x={this.props.index % 2 == 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) + this.props.width / 40 : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) - this.props.width / 10}
+          y={ -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
           fontSize={30}
           fontFamily={"'Anton', sans-serif"}
         />
@@ -78,13 +81,14 @@ class Player extends Component {
 class Animator {
 
   constructor(imageNode){
+    let me = this;
     this.tickCount = 0
     this.frameIndex = 0
     this.ticksPerFrame = 10
     this.currentAnimation = 'idle'
     this.imageNode = imageNode
     this.anim = new Konva.Animation(function(frame){
-      animator.update(frame);
+      me.update(frame);
     })
 
     this.animations = {
@@ -220,6 +224,10 @@ class Animator {
     this.anim.start();
   }
 
+  stop(){
+    this.anim.stop();
+  }
+
   switchAnim(anim){
     this.anim.stop();
     this.currentAnimation = this.animNames[anim];
@@ -228,21 +236,21 @@ class Animator {
   }
 
   update(frame){
-    animator.tickCount ++;
-    if (animator.tickCount > 8) {
-      animator.tickCount = 0;
-      if (animator.frameIndex === animator.animations[animator.currentAnimation].frames.length - 1) {
-        if (! animator.animations[animator.currentAnimation].loop) {
-          animator.frameIndex = animator.animations[animator.currentAnimation].endFrame;
-          animator.anim.stop();
+    this.tickCount ++;
+    if (this.tickCount > 8) {
+      this.tickCount = 0;
+      if (this.frameIndex === this.animations[this.currentAnimation].frames.length - 1) {
+        if (! this.animations[this.currentAnimation].loop) {
+          this.frameIndex = this.animations[this.currentAnimation].endFrame;
+          this.anim.stop();
         } else {
-          animator.frameIndex = 0;
+          this.frameIndex = 0;
         }
       } else {
-        animator.frameIndex ++;
+        this.frameIndex ++;
       }
-      animator.imageNode.crop(animator.animations[animator.currentAnimation].frames[animator.frameIndex]);
-      animator.imageNode.getLayer().batchDraw()
+      this.imageNode.crop(this.animations[this.currentAnimation].frames[this.frameIndex]);
+      this.imageNode.getLayer().batchDraw()
     }
   }
 

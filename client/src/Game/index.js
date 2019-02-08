@@ -8,9 +8,16 @@ class Game extends Component {
 
   constructor(props){
     super(props)
-
+    this.state = {
+      backdrop : undefined
+    }
     this.addAIPlayer = this.addAIPlayer.bind(this)
     this.removeAIPlayer = this.removeAIPlayer.bind(this)
+    this.startGame = this.startGame.bind(this)
+  }
+
+  componentDidMount(){
+    this.state.backdrop.getLayer().batchDraw()
   }
 
   handleDragStart = e => {
@@ -36,15 +43,15 @@ class Game extends Component {
   };
 
   addAIPlayer(){
-    this.props.gameContainer.addAIPlayer()
+    this.props.gameContainer.sendAction('add ai player')
   }
 
   removeAIPlayer(){
-    this.props.gameContainer.removeAIPlayer()
+    this.props.gameContainer.sendAction('remove ai player')
   }
 
   startGame(){
-
+    this.props.gameContainer.sendAction('start game')
   }
 
   render(){
@@ -52,31 +59,55 @@ class Game extends Component {
       <Stage width={this.props.width} height={this.props.height}>
         {this.props.gameContainer.gameState === 'pre' ?
           <Layer>
+            <Image
+              image={this.props.assetManifest.images[5]}
+              x={0}
+              y={0}
+              height={this.props.height}
+              width={this.props.width}
+            />
+            <Image
+              image={this.props.assetManifest.images[7]}
+              x={this.props.width / 2.4}
+              y={this.props.height - this.props.width/5}
+              width={this.props.width/5}
+              height={this.props.width/5}
+            />
             <Rect
               fill={"yellow"}
-              x={200}
-              y={200}
+              x={0}
+              y={0}
               width={200}
               height={100}
               onClick={this.addAIPlayer}
             />
             <Rect
               fill={"blue"}
-              x={200}
-              y={300}
+              x={0}
+              y={100}
               width={200}
               height={100}
               onClick={this.removeAIPlayer}
             />
             <Rect
               fill={"green"}
-              x={200}
-              y={400}
+              x={0}
+              y={200}
               width={200}
               height={100}
+              onClick={this.startGame}
             />
-            <Player position={{ x: 0, y: 0 }} spritesheet={this.props.assetManifest.images[4]}/>
-            <Player position={{ x: this.props.width - 100, y : 0 }} flip spritesheet={this.props.assetManifest.images[4]}/>
+            {[...this.props.gameContainer.players].map((player, i) => (
+              <Player key={i} name={player.name} playerCount={this.props.gameContainer.players.length} flip={i % 2 !== 0} index={i} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
+            ))}
+            <Image
+              image={this.props.assetManifest.images[6]}
+              ref={node => { this.state.backdrop = node }}
+              x={this.props.width / 2.4}
+              y={this.props.height / 1.6}
+              width={this.props.width/5}
+              height={this.props.width/9}
+            />
           </Layer>
         :
           null

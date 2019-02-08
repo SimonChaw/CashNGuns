@@ -62,15 +62,24 @@ io.on('connection', function(client) {
     client.on('join game', function(data) {
         let player = new Player(data.name)
         game.join(player)
+        io.emit('player manifest', game.get_player_manifest());
     });
+
+    client.on('start game', function(){
+        game.setup();
+        game.start();
+        io.emit('game message', {name: 'Game Message', message: 'The game has started.'});
+        io.emit('setup round', game.prepare_game_manifest());
+    })
 
     client.on('add ai player', function(){
         if (game.players.length < 8) {
-
           let player = new AI_Player();
-          client.emit('game message', {name: 'Game Message' , message: 'AI Player added.'})
+          game.join(player);
+          io.emit('game message', {name: 'Game Message' , message: 'AI Player added.'})
+          io.emit('player manifest', game.get_player_manifest());
         } else {
-          client.emit('game message', {name: 'Game Message' , message: 'There cannot be more than 8 players.'})
+          io.emit('game message', {name: 'Game Message' , message: 'There cannot be more than 8 players.'})
         }
     });
 
@@ -81,11 +90,12 @@ io.on('connection', function(client) {
             game.players.splice(index, 1)
             client.emit('game message', {name: 'Game Message' , message: 'AI Player removed.'})
             playerRemoved = true;
+            io.emit('player manifest', game.get_player_manifest());
             return;
           }
         })
         if (! playerRemoved) {
-          client.emit('game message', {name: 'Game Message' , message: 'No AI Players to remove.'})
+          io.emit('game message', {name: 'Game Message' , message: 'No AI Players to remove.'})
         }
     })
 
