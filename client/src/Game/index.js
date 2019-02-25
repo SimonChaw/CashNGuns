@@ -9,15 +9,23 @@ class Game extends Component {
   constructor(props){
     super(props)
     this.state = {
-      backdrop : undefined
+      backdrop : undefined,
+      flashMessage : undefined,
     }
     this.addAIPlayer = this.addAIPlayer.bind(this)
     this.removeAIPlayer = this.removeAIPlayer.bind(this)
     this.startGame = this.startGame.bind(this)
+    this.handleFlash = this.handleFlash.bind(this)
   }
 
   componentDidMount(){
     this.state.backdrop.getLayer().batchDraw()
+  }
+
+  componentDidUpdate(oldProps) {
+    if (this.props.gameContainer.flashMessages.length > 0 && this.state.flashMessage.text() === "") {
+      this.handleFlash();
+    }
   }
 
   handleDragStart = e => {
@@ -53,6 +61,41 @@ class Game extends Component {
   startGame(){
     this.props.gameContainer.sendAction('start game')
   }
+
+  handleFlash(){
+    // Check if this is the first message to come through.
+    if (this.state.flashMessage.text() === "") {
+      this.state.flashMessage.text(this.props.gameContainer.flashMessages[0])
+    }
+    // Reset Animations if Needed
+    this.state.flashMessage.scaleX(1)
+    this.state.flashMessage.scaleY(1)
+    this.state.flashMessage.opacity(1)
+
+    // Run Next Anim.
+    this.state.flashMessage.to({
+      duration: 3,
+      easing: Konva.Easings.BackEaseIn,
+      scaleX: 1.5,
+      scaleY: 1.5,
+      opacity: 0
+    });
+    // Set timeout, wait for animation to end
+    setTimeout((
+      function(){
+        // Shift to next message.
+        this.props.gameContainer.flashMessages.shift()
+        // Does the next message exist? If not set text as ""
+        this.state.flashMessage.text(this.props.gameContainer.flashMessages[0] == undefined ? "" : this.props.gameContainer.flashMessages[0] )
+        this.state.flashMessage.getLayer().batchDraw()
+        // Are there more messages in the stack? If so, "loop".
+        if (this.props.gameContainer.flashMessages.length > 0) {
+          this.handleFlash();
+        }
+      }.bind(this)),
+   3000);
+  }
+
 
   render(){
     return(
@@ -112,14 +155,19 @@ class Game extends Component {
         :
           null
         }
-        {/*<Layer>
-        {[...this.props.gameContainer.players].map(player => (
-          <Player />
-        ))}
-        {[...this.props.gameContainer.currentLoot].map(card => (
-          <LootCard />
-        ))}
-        </Layer>*/}
+        <Layer>
+            <Text
+              fill={'white'}
+              text={""}
+              stroke={'black'}
+              strokeWidth={1.5}
+              ref={ node => { this.state.flashMessage = node }}
+              align ={'center'}
+              y={this.props.height / 20}
+              fontSize={30}
+              fontFamily={"'Anton', sans-serif"}
+            />
+        </Layer>
       </Stage>
     )
   }

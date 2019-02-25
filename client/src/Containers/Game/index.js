@@ -9,6 +9,7 @@ class GameContainer {
      this.rounds = 0
      this.currentLoot = []
      this.players = []
+     this.flashMessages = [];
      this.gameState = 'pre'
      this.stages = ["choose bullet", "hold up", "godfather privlege", "courage", "pick loot"]
      this.currentStage = -1
@@ -18,6 +19,7 @@ class GameContainer {
      this.socket.on('game message', me.handleFeedback);
      this.socket.on('player manifest', this.acceptPlayerManifest);
      this.socket.on('setup round', this.setupRound);
+     this.socket.on('flash message', function(data){ me.flashMessages.push(data.message); me.refresh(); })
      //this.socket.on('')
      this.socket.emit('create game');
      this.socket.emit('join game', { name : 'Simon' });
