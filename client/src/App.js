@@ -24,13 +24,13 @@ class App extends Component {
   onLoaded(assetManifest){
     console.log('Loaded!');
     this.setState({currentScreen : 'lobby', assetManifest : assetManifest, loaded:true})
-    //assetManifest.audio[0].play();
   }
 
   changeVolume(volumeLevel){
     this.state.assetManifest.audio.forEach((sound) => {
       sound.volume = volumeLevel / 100
     })
+    this.state.assetManifest.audio[0].play();
   }
 
 

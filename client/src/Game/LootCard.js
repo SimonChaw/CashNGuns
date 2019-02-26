@@ -12,14 +12,38 @@ class LootCard extends Component {
       index : 0,
       type : undefined,
       value : 5000,
+      sprite : undefined
     }
 
     this.handleClick = this.handleClick.bind(this)
+    this.getImage = this.getImage.bind(this)
   }
 
   componentDidMount(){
-    this.props.image.onload = () => {
-      this.imageNode.getLayer().batchDraw()
+    this.state.sprite.onload = () => {
+      this.state.sprite.getLayer().batchDraw()
+    }
+  }
+
+  getImage(){
+    if (this.props.type === 'cash') {
+      switch (this.props.value) {
+        case 5000:
+          return this.props.images[0]
+          break;
+        case 10000:
+          return this.props.images[1]
+          break;
+        case 20000:
+          return this.props.images[2]
+          break;
+        default:
+
+      }
+    } else if (this.props.type === 'diamond') {
+      return this.props.images[3]
+    } else {
+      return this.props.images[8]
     }
   }
 
@@ -73,12 +97,12 @@ class LootCard extends Component {
     return(
       <Group>
         <Image
-          image={this.props.image}
-          ref={node => { this.imageNode = node }}
+          image={this.getImage()}
+          ref={node => { this.state.sprite = node }}
           width={100}
           height={50}
-          x={100}
-          y={100}
+          x={this.props.index % 2 == 0 ? this.props.width / 2 - 100: this.props.width / 2 }
+          y={ -1.6 * (this.props.width * 0.045 * (3 - (this.props.index - this.props.index % 2) / 3)) + this.props.height}
           draggable
           rotation={340}
           shadowColor="black"

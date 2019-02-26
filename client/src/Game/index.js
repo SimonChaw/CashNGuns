@@ -140,9 +140,6 @@ class Game extends Component {
               height={100}
               onClick={this.startGame}
             />
-            {[...this.props.gameContainer.players].map((player, i) => (
-              <Player key={i} name={player.name} playerCount={this.props.gameContainer.players.length} flip={i % 2 !== 0} index={i} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
-            ))}
             <Image
               image={this.props.assetManifest.images[6]}
               ref={node => { this.state.backdrop = node }}
@@ -151,6 +148,12 @@ class Game extends Component {
               width={this.props.width/5}
               height={this.props.width/9}
             />
+            {[...this.props.gameContainer.players].map((player, i) => (
+              <Player key={i} name={player.name} playerCount={this.props.gameContainer.players.length} flip={i % 2 !== 0} index={i} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
+            ))}
+            {[...this.props.gameContainer.currentLoot].map((card, i) => (
+              <LootCard key={i} index={i} type={card.type} value={card.value} width={this.props.width} height={this.props.height} cardHandler={this.props.gameContainer.sendChoice} images={this.props.assetManifest.images} />
+            ))}
           </Layer>
         :
           null

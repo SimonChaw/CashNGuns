@@ -48,7 +48,10 @@ class GameContainer {
    }
 
    setupRound(game){
+     me.currentStage = game.currentStage;
+     me.currentLoot = game.currentLoot;
      console.log(game);
+     me.refresh();
    }
 
 
