@@ -70,7 +70,6 @@ class LootCard extends Component {
   }
 
   handleMouseEnter(e){
-    console.log('hit');
     e.target.setAttrs({
       shadowOffset: {
         x: 15,

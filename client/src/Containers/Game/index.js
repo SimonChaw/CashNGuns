@@ -3,6 +3,8 @@ class GameContainer {
 
    constructor(socket, messageHandler, refresh){
      me = this;
+     this.id = undefined;
+     this.player = undefined;
      this.socket = socket
      this.handler = messageHandler
      this.refresh = refresh;
@@ -17,6 +19,7 @@ class GameContainer {
      // Loot Function
      //this.socket.on('loot', this.loot);
      this.socket.on('game message', me.handleFeedback);
+     this.socket.on('player id', function(id){ me.id = id });
      this.socket.on('player manifest', this.acceptPlayerManifest);
      this.socket.on('setup round', this.setupRound);
      this.socket.on('flash message', function(data){ me.flashMessages.push(data.message); me.refresh(); })
@@ -44,6 +47,12 @@ class GameContainer {
 
    acceptPlayerManifest(data){
      me.players = data;
+     for (var i = 0; i < me.players.length; i++) {
+       if (me.players[i].id === me.id) {
+         me.player = me.players[i]
+         i = me.players.length
+       }
+     }
      me.refresh();
    }
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Konva from 'konva';
-import { Stage, Layer, Star, Rect, Image, Text } from 'react-konva';
+import { Stage, Layer, Group, Star, Rect, Image, Text } from 'react-konva';
 import LootCard from './LootCard';
+import ChoiceButton from './ChoiceButton';
 import Player from './Player';
 
 class Game extends Component {
@@ -91,6 +92,8 @@ class Game extends Component {
         // Are there more messages in the stack? If so, "loop".
         if (this.props.gameContainer.flashMessages.length > 0) {
           this.handleFlash();
+        } else {
+          this.props.gameContainer.refresh();
         }
       }.bind(this)),
    3000);
@@ -166,10 +169,21 @@ class Game extends Component {
               strokeWidth={1.5}
               ref={ node => { this.state.flashMessage = node }}
               align ={'center'}
-              y={this.props.height / 20}
+              x={this.state.flashMessage == undefined ? 0 : this.props.width / 2 - this.state.flashMessage.textWidth / 1.5}
+              y={this.props.height / 4}
               fontSize={30}
               fontFamily={"'Anton', sans-serif"}
             />
+        </Layer>
+        <Layer>
+          <ChoiceButton size={this.props.width/5} x={this.props.width / 2 - this.props.width / 3.5} y={this.props.height / 3} badge={true} badgeCount={5} text={'BULLET'} messagesLeft={0} />
+          <ChoiceButton size={this.props.width/5} x={this.props.width / 2 + this.props.width / 10} y={this.props.height / 3} badge={true} badgeCount={5} text={'BULLET'} messagesLeft={0} />
+          { this.props.gameContainer.stages[this.props.gameContainer.currentStage] == 'choose bullet' &&
+            <Group>
+              <ChoiceButton x={this.props.width / 2 - 100} y={this.props.height / 2} badge={true} badgeCount={this.props.gameContainer.player.bullets} text={'BULLET'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+              <ChoiceButton x={this.props.width / 2 + 100} y={this.props.height / 2 } badge={true} badgeCount={this.props.gameContainer.player.blanks} text={'BLANK'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+            </Group>
+          }
         </Layer>
       </Stage>
     )
