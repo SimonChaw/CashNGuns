@@ -9,13 +9,19 @@ class ChoiceButton extends Component {
 
     this.state = {
       textNode : undefined,
+      icon : undefined
     }
   }
 
+  componentDidUpdate(){
+    if (this.state.textNode) {
+      this.state.textNode.x(this.props.x + this.props.size / 2 - this.state.textNode.textWidth / 2)
+    }
+  }
 
   render(){
     return(
-      <Group>
+      <Group onClick={() => this.props.handleClick(this.props.value)}>
       { this.props.messagesLeft < 1 &&
         <Group>
           <Rect
@@ -24,6 +30,11 @@ class ChoiceButton extends Component {
             y={this.props.y}
             width={this.props.size}
             height={this.props.size}
+            shadowEnabled={true}
+            shadowOpacity={0.6}
+            shadowBlur={2}
+            shadowOffsetX={10}
+            shadowOffsetY={10}
           />
           <Rect
             fill={"white"}
@@ -37,9 +48,12 @@ class ChoiceButton extends Component {
           <Text
             ref ={ node => this.state.textNode = node}
             text={this.props.text}
+            fill={"blue"}
+            stroke={"blue"}
+            strokeWidth={this.props.size * 0.005}
             fontSize={this.props.size / 10}
-            x={this.state.textNode ? this.props.x + this.props.size / 2 - this.state.textNode.textWidth : 0}
-            y={this.state.textNode ? this.props.y + this.props.size : 0}
+            x={0}
+            y={this.props.y + this.props.size / 1.2}
           />
         </Group>
       }

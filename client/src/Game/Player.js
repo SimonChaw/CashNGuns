@@ -12,20 +12,38 @@ class Player extends Component {
       wounds : 0,
       currentCash : 0,
       sprite : undefined,
-      index : 0
+      index : 0,
+      text : undefined
     }
     this.switchAnim = this.switchAnim.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.setupAnimator = this.setupAnimator.bind(this);
   }
 
   componentDidMount(){
+    this.setupAnimator();
+  }
+
+  setupAnimator(){
     this.state.sprite.crop({
       x: 0,
       y: 0,
       width: 630,
       height: 700
     });
-    let animator = new Animator(this.state.sprite)
+    let animator = new Animator(this.state.sprite, this.props.width, this.props.sfx)
     animator.play();
+    if (this.props.anim) {
+      animator.switchAnim(this.props.anim)
+      // This Player object was created during the shoot out loop. We have a next scene function to use
+      if (this.props.nextScene) {
+        setTimeout((
+          function(){
+            this.props.nextScene()
+          }.bind(this)),3000)
+      }
+    }
     this.setState({
       'animator' : animator
     })
@@ -46,30 +64,44 @@ class Player extends Component {
     })
   }
 
+  handleMouseEnter(){
+    if (this.props.highlight) {
+      this.state.text.fill('red')
+    }
+  }
+
+  handleMouseLeave(){
+    if (this.props.highlight) {
+      this.state.text.fill('white')
+    }
+  }
+
   render(){
     return(
       <Group>
         <Image
+          onClick={() => this.props.handleClick(this.props.index)}
           image={this.props.spritesheet}
           ref={node => { this.state.sprite = node }}
-          x={this.props.index % 2 == 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3)}
-          y={ -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
+          x={this.props.x ? this.props.x : this.props.index % 2 === 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3)}
+          y={this.props.x ? this.props.height / 2 : -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
           scaleX={this.props.flip ? -0.035 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2)) : 0.035 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2))}
           scaleY={0.5 * (1 - 0.075 * (5 - (this.props.index - this.props.index % 2) / 2))}
           draggable
           shadowColor="black"
           shadowBlur={10}
           shadowOpacity={0.6}
-          onClick={this.switchAnim}
+          onMouseEnter={this.handleMouseEnter}
+          onMouseLeave={this.handleMouseLeave}
         />
         <Text
+          ref={node => { this.state.text = node }}
           fill={'white'}
           text={this.props.name}
           stroke={'black'}
           strokeWidth={1.5}
-          ref={node => { this.textNode = node }}
-          x={this.props.index % 2 == 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) + this.props.width / 40 : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) - this.props.width / 10}
-          y={ -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
+          x={this.props.x ? this.props.x - (this.props.flip ? this.props.width / 10 : 0) : this.props.index % 2 === 0 ? this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) + this.props.width / 40 : this.props.width - this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 1.3) - this.props.width / 10}
+          y={this.props.x ? this.props.height / 2 : -1.6 * (this.props.width * 0.045 * (5 - (this.props.index - this.props.index % 2) / 4)) + this.props.height}
           fontSize={30}
           fontFamily={"'Anton', sans-serif"}
         />
@@ -80,8 +112,8 @@ class Player extends Component {
 
 class Animator {
 
-  constructor(imageNode){
-    let me = this;
+  constructor(imageNode, canvasWidth, sfx){
+    let me = this
     this.tickCount = 0
     this.frameIndex = 0
     this.ticksPerFrame = 10
@@ -115,7 +147,8 @@ class Animator {
             x: 630 * 2,
             y: 0,
             width: 630,
-            height: 700
+            height: 700,
+            sfx : sfx[1]
           },
           {
             x: 630 * 3,
@@ -214,14 +247,36 @@ class Animator {
             height: 700
           }
         ],
+        'loop' : false,
+      },
+      'runaway' : {
+        'frames' : [
+        {
+          x: 0,
+          y: 0,
+          width: 630,
+          height: 700
+        }
+      ],
         'loop' : true,
+        'special' : () => {
+          this.imageNode.to({
+            duration : 2,
+            x : (canvasWidth + 100)
+          })
+        }
       }
     }
     this.animNames = Object.keys(this.animations);
   }
 
+
+
   play(){
     this.anim.start();
+    if (this.animations[this.currentAnimation].special) {
+      this.animations[this.currentAnimation].special();
+    }
   }
 
   stop(){
@@ -230,13 +285,31 @@ class Animator {
 
   switchAnim(anim){
     this.anim.stop();
-    this.currentAnimation = this.animNames[anim];
+    this.currentAnimation = typeof anim === "string" ? anim : this.animNames[anim];
     this.frameIndex = 0;
     this.play();
   }
 
   update(frame){
     this.tickCount ++;
+    if (this.tickCount < 2) {
+      if (this.animations[this.currentAnimation].frames[this.frameIndex].sfx) {
+        /*
+        let playPromise = this.animations[this.currentAnimation].frames[this.frameIndex].sfx.play()
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+            // Automatic playback started!
+            // Show playing UI.
+            this.animations[this.currentAnimation].frames[this.frameIndex].sfx.pause()
+          })
+          .catch(error => {
+            // Auto-play was prevented
+            // Show paused UI.
+          });
+        }
+        */
+      }
+    }
     if (this.tickCount > 8) {
       this.tickCount = 0;
       if (this.frameIndex === this.animations[this.currentAnimation].frames.length - 1) {

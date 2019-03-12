@@ -63,6 +63,12 @@ class Game extends Component {
     this.props.gameContainer.sendAction('start game')
   }
 
+  getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+  }
+
   handleFlash(){
     // Check if this is the first message to come through.
     if (this.state.flashMessage.text() === "") {
@@ -152,7 +158,7 @@ class Game extends Component {
               height={this.props.width/9}
             />
             {[...this.props.gameContainer.players].map((player, i) => (
-              <Player key={i} name={player.name} playerCount={this.props.gameContainer.players.length} flip={i % 2 !== 0} index={i} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
+              <Player sfx={this.props.assetManifest.audio} highlight={this.props.gameContainer.currentStage == 1} handleClick={this.props.gameContainer.currentStage == 1 ? this.props.gameContainer.sendChoice : function(){}} key={i} name={player.name} playerCount={this.props.gameContainer.players.length} flip={i % 2 !== 0} index={i} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
             ))}
             {[...this.props.gameContainer.currentLoot].map((card, i) => (
               <LootCard key={i} index={i} type={card.type} value={card.value} width={this.props.width} height={this.props.height} cardHandler={this.props.gameContainer.sendChoice} images={this.props.assetManifest.images} />
@@ -169,19 +175,72 @@ class Game extends Component {
               strokeWidth={1.5}
               ref={ node => { this.state.flashMessage = node }}
               align ={'center'}
-              x={this.state.flashMessage == undefined ? 0 : this.props.width / 2 - this.state.flashMessage.textWidth / 1.5}
+              width={this.props.width}
               y={this.props.height / 4}
               fontSize={30}
               fontFamily={"'Anton', sans-serif"}
             />
         </Layer>
         <Layer>
-          <ChoiceButton size={this.props.width/5} x={this.props.width / 2 - this.props.width / 3.5} y={this.props.height / 3} badge={true} badgeCount={5} text={'BULLET'} messagesLeft={0} />
-          <ChoiceButton size={this.props.width/5} x={this.props.width / 2 + this.props.width / 10} y={this.props.height / 3} badge={true} badgeCount={5} text={'BULLET'} messagesLeft={0} />
-          { this.props.gameContainer.stages[this.props.gameContainer.currentStage] == 'choose bullet' &&
+          { this.props.gameContainer.stages[this.props.gameContainer.currentStage] == 'Choice of Bullet Card' &&
             <Group>
-              <ChoiceButton x={this.props.width / 2 - 100} y={this.props.height / 2} badge={true} badgeCount={this.props.gameContainer.player.bullets} text={'BULLET'} messagesLeft={this.props.gameContainer.flashMessages.length} />
-              <ChoiceButton x={this.props.width / 2 + 100} y={this.props.height / 2 } badge={true} badgeCount={this.props.gameContainer.player.blanks} text={'BLANK'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+              <Text
+                fill={'white'}
+                text={ this.props.gameContainer.flashMessages.length > 0 ? "" : "Please choose bullet or blank."}
+                stroke={'black'}
+                strokeWidth={1.5}
+                align ={'center'}
+                width={this.props.width}
+                y={this.props.height / 4}
+                fontSize={30}
+                fontFamily={"'Anton', sans-serif"}
+              />
+              <ChoiceButton value={'bullet'} handleClick={this.props.gameContainer.sendChoice} icon={this.props.assetManifest.images[10]} size={this.props.width/5} x={this.props.width / 2 - this.props.width / 3.5} y={this.props.height / 3} badge={true} badgeCount={5} text={'BULLET'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+              <ChoiceButton value={'blank'} handleClick={this.props.gameContainer.sendChoice} icon={this.props.assetManifest.images[9]} size={this.props.width/5} x={this.props.width / 2 + this.props.width / 10} y={this.props.height / 3} badge={true} badgeCount={5} text={'BLANK'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+            </Group>
+          || this.props.gameContainer.stages[this.props.gameContainer.currentStage] == 'Hold Up' &&
+            <Group>
+              <Text
+                fill={'white'}
+                text={ this.props.gameContainer.flashMessages.length > 0 ? "" : "Please select a player to target"}
+                stroke={'black'}
+                strokeWidth={1.5}
+                align ={'center'}
+                width={this.props.width}
+                y={this.props.height / 4}
+                fontSize={30}
+                fontFamily={"'Anton', sans-serif"}
+              />
+            </Group>
+          || this.props.gameContainer.stages[this.props.gameContainer.currentStage] == 'Courage' &&
+            <Group>
+              <ChoiceButton value={false} handleClick={this.props.gameContainer.sendChoice} icon={this.props.assetManifest.images[10]} size={this.props.width/5} x={this.props.width / 2 - this.props.width / 3.5} y={this.props.height / 3} text={'BANZAI!'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+              <ChoiceButton value={true} handleClick={this.props.gameContainer.sendChoice} icon={this.props.assetManifest.images[9]} size={this.props.width/5} x={this.props.width / 2 + this.props.width / 10} y={this.props.height / 3} text={'COWER'} messagesLeft={this.props.gameContainer.flashMessages.length} />
+            </Group>
+        }
+        </Layer>
+        <Layer>
+          { this.props.gameContainer.shootOutManifest.length > 0 &&
+            <Group>
+              <Rect
+                width={this.props.width}
+                height={this.props.height}
+                fill={'darkgrey'}
+              />
+              <Text
+                fill={'white'}
+                text={ this.props.gameContainer.shootOutManifest[0].message }
+                stroke={'black'}
+                strokeWidth={1.5}
+                align ={'center'}
+                width={this.props.width}
+                y={this.props.height / 4}
+                fontSize={30}
+                fontFamily={"'Anton', sans-serif"}
+              />
+              <Player nextScene={this.props.gameContainer.nextScene} sfx={this.props.assetManifest.audio} anim={this.props.gameContainer.shootOutManifest[0].bullet ? 'shoot' : 'shoot'} x={this.props.width / 10} highlight={false} key={this.getRandomInt(201, 300)} handleClick={function(){}} name={this.props.gameContainer.players[this.props.gameContainer.shootOutManifest[0].shooter].name} playerCount={this.props.gameContainer.players.length} flip={false} index={0} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
+
+              <Player sfx={this.props.assetManifest.audio} anim={this.props.gameContainer.getShootOutAnim(false)} x={this.props.width - this.props.width / 10} highlight={false} key={this.getRandomInt(100, 200)} handleClick={function(){}} name={this.props.gameContainer.players[this.props.gameContainer.shootOutManifest[0].target].name} playerCount={this.props.gameContainer.players.length} flip={true} index={1} width={this.props.width} height={this.props.height} spritesheet={this.props.assetManifest.images[4]} />
             </Group>
           }
         </Layer>

@@ -24,13 +24,28 @@ class App extends Component {
   onLoaded(assetManifest){
     console.log('Loaded!');
     this.setState({currentScreen : 'lobby', assetManifest : assetManifest, loaded:true})
+    var resumeAudioContext = (function() {
+      console.log('here');
+    	// handler for fixing suspended audio context in Chrome
+    	try {
+    		if (window.createjs.WebAudioPlugin.context && window.createjs.WebAudioPlugin.context.state === "suspended") {
+    			window.createjs.WebAudioPlugin.context.resume();
+    		}
+    	} catch (e) {
+    		// SoundJS context or web audio plugin may not exist
+    		console.error("There was an error while trying to resume the SoundJS Web Audio context...");
+    		console.error(e);
+    	}
+      window.createjs.Sound.play('theme');
+    	// Should only need to fire once
+    	window.removeEventListener("click", resumeAudioContext);
+    }).bind(this);
+    window.addEventListener("click", resumeAudioContext);
+
   }
 
   changeVolume(volumeLevel){
-    this.state.assetManifest.audio.forEach((sound) => {
-      sound.volume = volumeLevel / 100
-    })
-    this.state.assetManifest.audio[0].play();
+    window.createjs.Sound.volume = volumeLevel / 100;
   }
 
 
@@ -41,8 +56,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header changeVolume={this.changeVolume}/>
-
+        {this.state.currentScreen != "loading" &&
+            <Header changeVolume={this.changeVolume}/>
+        }
         {this.state.currentScreen == "loading" &&
             <LoadingScreen handleLoad={this.onLoaded} />
         || this.state.currentScreen == "lobby" &&
